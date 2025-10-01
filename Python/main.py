@@ -1,4 +1,4 @@
-import ibotta_db
+import db_utils
 import sys
 
 

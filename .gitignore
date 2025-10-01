@@ -8571,3 +8571,5 @@
 Python/__pycache__/database.cpython-311.pyc
 Python/__pycache__/db_utils.cpython-311.pyc
 Python/__pycache__/ibotta_db.cpython-311.pyc
+Python/tests/__pycache__/__init__.cpython-311.pyc
+Python/tests/__pycache__/test_db.cpython-311-pytest-8.4.2.pyc

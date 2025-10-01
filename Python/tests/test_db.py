@@ -3,6 +3,11 @@ import ibotta_db as db
 import pandas as pd
 
 
+@pytest.fixture(scope="function")
+def conn():
+    conn = db.create_connection(db.db_path)
+    yield conn
+
 def test_mapping():
     dir = "./CSV_data"
     # Map given CSV file names to table names
@@ -18,7 +23,6 @@ def test_import():
     db_path = "sqlite:///Database/ibotta.db"
     dir = "./CSV_data"
 
-    conn = db.create_connection(db.db_path)
     mapping = db.map_csv(db.dir)
 
     db.load_csv(conn, db.dir, mapping)
@@ -27,3 +31,29 @@ def test_import():
         df = pd.read_sql(f"SELECT * FROM {table_name} LIMIT 1", conn)
         assert not df.empty
 
+def test_query(conn):
+    query = '''
+    SELECT
+        customer_id,
+        COUNT(*) AS activation_count
+    FROM customer_offers
+    GROUP BY customer_id
+    ORDER BY activation_count DESC
+    LIMIT 5;
+    '''
+    rows = db.run_sql(conn, query)
+    assert rows == [{'CUSTOMER_ID': 40391551, 'activation_count': 1106},
+                    {'CUSTOMER_ID': 40402915, 'activation_count': 1025},
+                    {'CUSTOMER_ID': 40426885, 'activation_count': 982},
+                    {'CUSTOMER_ID': 40429588, 'activation_count': 977},
+                    {'CUSTOMER_ID': 40408527, 'activation_count': 938}]
+    
+def test_query_file(conn):
+    path = "./Queries/activations.sql"
+    rows = db.run_sql_file(conn, path)
+    print(rows)
+    assert rows == [{'CUSTOMER_ID': 40391551, 'activation_count': 1106},
+                    {'CUSTOMER_ID': 40402915, 'activation_count': 1025},
+                    {'CUSTOMER_ID': 40426885, 'activation_count': 982},
+                    {'CUSTOMER_ID': 40429588, 'activation_count': 977},
+                    {'CUSTOMER_ID': 40408527, 'activation_count': 938}]

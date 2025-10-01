@@ -1,7 +1,8 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import os
 import re
+from typing import List, Dict, Any, Optional
 
 # Adjust to use other DBs with sqlalchemy
 db_path = "sqlite:///Database/ibotta.db"
@@ -32,3 +33,38 @@ def load_csv(conn, dir, mapping):
     for csv_file, table_name in mapping.items():
         df = pd.read_csv(dir + "/" + csv_file)
         df.to_sql(table_name, conn, if_exists="replace", index=False)
+
+def run_sql(conn: str, query: str) -> Optional[List[Dict[str, Any]]]:
+    """
+    Execute arbitrary SQL against a given database.
+
+    Args:
+        conn (str): connection to a DB engine
+        sql (str): SQL statement to execute
+
+    Returns:
+        list of dicts for SELECT queries, else None
+    """
+    with conn.connect() as db:
+        result = db.execute(text(query))
+        if result.returns_rows:
+            return [dict(row) for row in result.mappings()]
+        db.commit()
+
+def run_sql_file(conn: str, path: str) -> Optional[List[Dict[str, Any]]]:
+    """
+    Execute a SQL file against a given database.
+
+    Args:
+        conn (str): connection to a DB engine
+        path (str): path to a file to read and execute
+
+    Returns:
+        list of dicts for SELECT queries, else None
+    """
+    try:
+        with open(path, "r") as f:
+            query = f.read()
+        return run_sql(conn, query)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")

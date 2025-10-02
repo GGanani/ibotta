@@ -19,7 +19,7 @@ def test_mapping():
     }
     assert db.map_csv(db.dir) == expected
 
-def test_import():
+def test_import(conn):
     db_path = "sqlite:///Database/ibotta.db"
     dir = "./CSV_data"
 

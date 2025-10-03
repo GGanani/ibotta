@@ -1,7 +1,7 @@
     SELECT
-        customer_id,
-        COUNT(*) AS activation_count
+        CUSTOMER_ID,
+        COUNT(*) AS ACTIVATION_COUNT
     FROM customer_offers
-    GROUP BY customer_id
-    ORDER BY activation_count DESC
+    GROUP BY CUSTOMER_ID
+    ORDER BY ACTIVATION_COUNT DESC
     LIMIT 5;

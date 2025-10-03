@@ -1,28 +1,76 @@
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, MetaData, Table, Column, Integer, String, Float, Numeric, DateTime, ForeignKey
+from sqlalchemy.engine import Engine
 import os
 import re
 from typing import List, Dict, Any, Optional
 
 # Adjust to use other DBs with sqlalchemy
-db_path = "sqlite:///Database/ibotta.db"
+db_url = "sqlite:///Database/ibotta.db"
 # Careful - looks in relative path from where Python is run
 dir_path = "./CSV_data"
 
-def create_connection(db_path):
+metadata = MetaData()
+
+# Define schemas for all tables manually to create keys
+offer_rewards = Table(
+    "offer_rewards",
+    metadata,
+    Column("ID", Integer, primary_key=True, autoincrement=True),
+    Column("OFFER_ID", Integer, nullable=False),
+    Column("TYPE", String),
+    Column("AMOUNT", Float),
+    Column("CREATED_AT", DateTime),
+    Column("UPDATED_AT", DateTime),
+)
+
+customer_offers = Table(
+    "customer_offers",
+    metadata,
+    Column("ID", Integer, primary_key=True, autoincrement=True),
+    Column("CUSTOMER_ID", Integer, nullable=False),
+    Column("OFFER_ID", Integer, ForeignKey("offer_rewards.OFFER_ID")),
+    Column("ACTIVATED", DateTime),
+    Column("VERIFIED", DateTime),
+)
+
+customer_offer_rewards = Table(
+    "customer_offer_rewards",
+    metadata,
+    Column("ID", Integer, primary_key=True, autoincrement=True),
+    Column("CUSTOMER_ID", Integer, nullable=False),
+    Column("OFFER_REWARD_ID", Integer, ForeignKey("offer_rewards.ID")),
+    Column("FINISHED", Numeric),
+    Column("CREATED_AT", DateTime),
+)
+
+customer_offer_redemptions = Table(
+    "customer_offer_redemptions",
+    metadata,
+    Column("ID", Integer, primary_key=True, autoincrement=True),
+    Column("CUSTOMER_OFFER_ID", Integer, ForeignKey("customer_offers.ID")),
+    Column("VERIFIED_REDEMPTION_COUNT", Integer),
+    Column("SUBMITTED_REDEMPTION_COUNT", Integer),
+    Column("OFFER_AMOUNT", Float),
+    Column("CREATED_AT", DateTime),
+)
+
+def init_db(db_url="sqlite:///offers.db", echo=False):
     """
-    Wrapper to create and return a SQLAlchemy engine for the given database. 
+    Wrapper to create, initalize, and return a SQLAlchemy engine for the given database. 
     An Engine is returned rather than a Connection because it cleanly manages
     connections on-demand and is directly supported by pandas 'to_sql'.
     SQLite file is created if it does not exist.
 
     Args:
-        db_path (str): SQLAlchemy format database URL (e.g., "sqlite:///ibotta.db")
+        db_url (str): SQLAlchemy format database URL (e.g., "sqlite:///ibotta.db")
 
     Returns:
         SQLAlchemy Engine instance for connecting to the database
     """
-    return create_engine(db_path)
+    engine = create_engine(db_url, echo=echo)
+    metadata.create_all(engine)
+    return engine
 
 def map_csv(dir: str) -> Dict[str, str]:
     """
@@ -57,7 +105,7 @@ def map_csv(dir: str) -> Dict[str, str]:
 
     return csv_to_table
 
-def load_csv(conn, dir: str, mapping: Dict[str, str]) -> None:
+def load_csv(conn: Engine, dir: str, mapping: Dict[str, str]) -> None:
     """
     Loads each csv file in a given directory into its own table as defined by a mapping.
 
@@ -67,10 +115,14 @@ def load_csv(conn, dir: str, mapping: Dict[str, str]) -> None:
         mapping (Dict[str,str]): Mapping of csv filenames (including extension) to destination table names
     """
     for csv_file, table_name in mapping.items():
-        df = pd.read_csv(dir + "/" + csv_file, parse_dates=True)
-        df.to_sql(table_name, conn, if_exists="replace", index=False)
+        # Clear existing table data preserving schema
+        conn.connect().execute(text(f"DELETE FROM {table_name}"))
+        # Read input data from csv
+        df = pd.read_csv(f"{dir}/{csv_file}", parse_dates=True)
+        # Insert data without dropping the table
+        df.to_sql(table_name, conn, if_exists="append", index=False)
 
-def run_sql(conn: str, query: str) -> Optional[List[Dict[str, Any]]]:
+def run_sql(conn: Engine, query: str) -> Optional[List[Dict[str, Any]]]:
     """
     Execute arbitrary SQL against a given database.
 
@@ -87,7 +139,7 @@ def run_sql(conn: str, query: str) -> Optional[List[Dict[str, Any]]]:
             return [dict(row) for row in result.mappings()]
         db.commit()
 
-def run_sql_file(conn: str, path: str) -> Optional[List[Dict[str, Any]]]:
+def run_sql_file(conn: Engine, path: str) -> Optional[List[Dict[str, Any]]]:
     """
     Execute a SQL file against a given database.
 

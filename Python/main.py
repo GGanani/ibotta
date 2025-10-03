@@ -8,8 +8,8 @@ def main():
 
     base_path = "/Users/guy/Python/ibotta/"
     dir_path = base_path + "CSV_data"
-    db_path = "sqlite:///" + base_path + "Database/ibotta.db"
-    conn = db.create_connection(db_path)
+    db_url = "sqlite:///" + base_path + "Database/ibotta.db"
+    conn = db.init_db(db_url)
     db.load_csv(conn, dir_path, db.map_csv(dir_path))
 
     query = '''

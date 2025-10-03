@@ -7,7 +7,7 @@ from typing import List, Dict, Any, Optional
 # Adjust to use other DBs with sqlalchemy
 db_path = "sqlite:///Database/ibotta.db"
 # Careful - looks in relative path from where Python is run
-dir = "./CSV_data"
+dir_path = "./CSV_data"
 
 def create_connection(db_path):
     """
@@ -67,7 +67,7 @@ def load_csv(conn, dir: str, mapping: Dict[str, str]) -> None:
         mapping (Dict[str,str]): Mapping of csv filenames (including extension) to destination table names
     """
     for csv_file, table_name in mapping.items():
-        df = pd.read_csv(dir + "/" + csv_file)
+        df = pd.read_csv(dir + "/" + csv_file, parse_dates=True)
         df.to_sql(table_name, conn, if_exists="replace", index=False)
 
 def run_sql(conn: str, query: str) -> Optional[List[Dict[str, Any]]]:

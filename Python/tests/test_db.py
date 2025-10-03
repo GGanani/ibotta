@@ -5,7 +5,7 @@ import pandas as pd
 
 @pytest.fixture(scope="function")
 def conn():
-    conn = db.init_db(db.db_url)
+    conn = db.get_db(db.db_url)
     yield conn
 
 def test_mapping():

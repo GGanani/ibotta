@@ -29,7 +29,7 @@ customer_offers = Table(
     metadata,
     Column("ID", Integer, primary_key=True, autoincrement=True),
     Column("CUSTOMER_ID", Integer, nullable=False),
-    Column("OFFER_ID", Integer, ForeignKey("offer_rewards.OFFER_ID")),
+    Column("OFFER_ID", Integer),
     Column("ACTIVATED", DateTime),
     Column("VERIFIED", DateTime),
 )
@@ -39,7 +39,7 @@ customer_offer_rewards = Table(
     metadata,
     Column("ID", Integer, primary_key=True, autoincrement=True),
     Column("CUSTOMER_ID", Integer, nullable=False),
-    Column("OFFER_REWARD_ID", Integer, ForeignKey("offer_rewards.ID")),
+    Column("OFFER_REWARD_ID", Integer),
     Column("FINISHED", Numeric),
     Column("CREATED_AT", DateTime),
 )
@@ -48,16 +48,16 @@ customer_offer_redemptions = Table(
     "customer_offer_redemptions",
     metadata,
     Column("ID", Integer, primary_key=True, autoincrement=True),
-    Column("CUSTOMER_OFFER_ID", Integer, ForeignKey("customer_offers.ID")),
+    Column("CUSTOMER_OFFER_ID", Integer),
     Column("VERIFIED_REDEMPTION_COUNT", Integer),
     Column("SUBMITTED_REDEMPTION_COUNT", Integer),
     Column("OFFER_AMOUNT", Float),
     Column("CREATED_AT", DateTime),
 )
 
-def init_db(db_url="sqlite:///offers.db", echo=False):
+def get_db(db_url="sqlite:///offers.db", echo=False) -> Engine:
     """
-    Wrapper to create, initalize, and return a SQLAlchemy engine for the given database. 
+    Wrapper to create and return a SQLAlchemy engine for the given database. 
     An Engine is returned rather than a Connection because it cleanly manages
     connections on-demand and is directly supported by pandas 'to_sql'.
     SQLite file is created if it does not exist.
@@ -69,6 +69,21 @@ def init_db(db_url="sqlite:///offers.db", echo=False):
         SQLAlchemy Engine instance for connecting to the database
     """
     engine = create_engine(db_url, echo=echo)
+    return engine
+
+def init_db(engine: Engine) -> Engine:
+    """
+    
+    Initializes the database schema.
+
+    Args:
+        conn (Engine): SQLAlchemy DB engine
+    
+    Returns:
+        SQLAlchemy Engine instance (for chaining convenience)
+
+    """
+    metadata.drop_all(engine)
     metadata.create_all(engine)
     return engine
 
@@ -107,6 +122,7 @@ def map_csv(dir: str) -> Dict[str, str]:
 
 def load_csv(conn: Engine, dir: str, mapping: Dict[str, str]) -> None:
     """
+    Initializes the database schema.
     Loads each csv file in a given directory into its own table as defined by a mapping.
 
     Args:
@@ -114,6 +130,7 @@ def load_csv(conn: Engine, dir: str, mapping: Dict[str, str]) -> None:
         dir (str): Path to directory containing csv files
         mapping (Dict[str,str]): Mapping of csv filenames (including extension) to destination table names
     """
+    init_db(conn)
     for csv_file, table_name in mapping.items():
         # Clear existing table data preserving schema
         conn.connect().execute(text(f"DELETE FROM {table_name}"))

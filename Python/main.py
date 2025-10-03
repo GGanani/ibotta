@@ -9,21 +9,16 @@ def main():
     base_path = "/Users/guy/Python/ibotta/"
     dir_path = base_path + "CSV_data"
     db_url = "sqlite:///" + base_path + "Database/ibotta.db"
-    conn = db.init_db(db_url)
+    conn = db.get_db(db_url)
     db.load_csv(conn, dir_path, db.map_csv(dir_path))
 
     query = '''
     SELECT *
-    FROM customer_offer_redemptions
-    LIMIT 5;
-    '''
-    print(db.run_sql(conn, query))
-
-    query = '''
-    SELECT *
     FROM customer_offers
-    LIMIT 5;
+    ORDER BY ACTIVATED DESC
+    LIMIT 20;
     '''
+    print("Customer offers dump:")
     print(db.run_sql(conn, query))
 
     print("Activations by customer:")

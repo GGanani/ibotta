@@ -28,7 +28,7 @@ def main():
     SELECT *
     FROM customer_offers
     ORDER BY ACTIVATED DESC
-    LIMIT 20;
+    LIMIT 10;
     '''
     print("Customer offers dump:")
     print(db.run_sql(conn, query))

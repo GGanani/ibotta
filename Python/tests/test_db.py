@@ -35,28 +35,28 @@ def test_import(db: IbottaDB, conn: Engine):
 def test_query(db: IbottaDB, conn: Engine):
     query = '''
     SELECT
-        CUSTOMER_ID,
-        COUNT(*) AS ACTIVATION_COUNT
+        customer_id as customer_id,
+        COUNT(*) AS activation_count
     FROM customer_offers
-    GROUP BY CUSTOMER_ID
-    ORDER BY ACTIVATION_COUNT DESC
+    GROUP BY customer_id
+    ORDER BY activation_count DESC
     LIMIT 5;
     '''
-    expected = [{'CUSTOMER_ID': 40391551, 'ACTIVATION_COUNT': 1106},
-                    {'CUSTOMER_ID': 40402915, 'ACTIVATION_COUNT': 1025},
-                    {'CUSTOMER_ID': 40426885, 'ACTIVATION_COUNT': 982},
-                    {'CUSTOMER_ID': 40429588, 'ACTIVATION_COUNT': 977},
-                    {'CUSTOMER_ID': 40408527, 'ACTIVATION_COUNT': 938}]
+    expected = [{'customer_id': 40391551, 'activation_count': 1106},
+                    {'customer_id': 40402915, 'activation_count': 1025},
+                    {'customer_id': 40426885, 'activation_count': 982},
+                    {'customer_id': 40429588, 'activation_count': 977},
+                    {'customer_id': 40408527, 'activation_count': 938}]
     rows = db.run_sql(conn, query)
     assert rows == expected
     
 def test_query_file(db: IbottaDB, conn: Engine):
     path = "./Queries/activations.sql"
-    expected = [{'CUSTOMER_ID': 40391551, 'ACTIVATION_COUNT': 1106},
-                {'CUSTOMER_ID': 40402915, 'ACTIVATION_COUNT': 1025},
-                {'CUSTOMER_ID': 40426885, 'ACTIVATION_COUNT': 982},
-                {'CUSTOMER_ID': 40429588, 'ACTIVATION_COUNT': 977},
-                {'CUSTOMER_ID': 40408527, 'ACTIVATION_COUNT': 938}]
+    expected = [{'customer_id': 40391551, 'activation_count': 1106},
+                {'customer_id': 40402915, 'activation_count': 1025},
+                {'customer_id': 40426885, 'activation_count': 982},
+                {'customer_id': 40429588, 'activation_count': 977},
+                {'customer_id': 40408527, 'activation_count': 938}]
     rows = db.run_sql_file(conn, path)
     
     print(rows)

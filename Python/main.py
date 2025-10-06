@@ -1,16 +1,28 @@
-import ibotta_db as db
+from ibotta_db import IbottaDB
 import sys
 
 
 def main():
 
     print("Hello Ibotta!")
-
+    # Where to find stuff - only works on my machine
+    # This could be a known path on deployment to an EC2 instance
     base_path = "/Users/guy/Python/ibotta/"
     dir_path = base_path + "CSV_data"
     db_url = "sqlite:///" + base_path + "Database/ibotta.db"
+
+    db = IbottaDB()
     conn = db.get_db(db_url)
     db.load_csv(conn, dir_path, db.map_csv(dir_path))
+
+    print("Customer offers rows:")
+    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM customer_offers;"))
+    print("Customer offer rewards rows:")
+    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM customer_offer_rewards;"))
+    print("Customer offer redemptions rows:")
+    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM customer_offer_redemptions;"))
+    print("Offer rewards rows:")
+    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM offer_rewards;"))
 
     query = '''
     SELECT *

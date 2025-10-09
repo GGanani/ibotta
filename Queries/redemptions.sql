@@ -7,4 +7,4 @@ JOIN
     customer_offers co ON cor.CUSTOMER_OFFER_ID = co.ID
 GROUP BY co.customer_id
 ORDER BY total_redeemed DESC
-LIMIT 5;
+;

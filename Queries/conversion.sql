@@ -13,4 +13,4 @@ SELECT
     total_verified,
     ROUND(CAST(total_verified AS REAL) / total_activated, 2) AS conversion_rate
 FROM customer_activation_stats
-LIMIT 5;
+;

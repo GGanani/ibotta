@@ -34,13 +34,13 @@ def main():
     print(db.run_sql(conn, query))
 
     print("Activations by customer:")
-    print(db.run_sql_file(conn, base_path + "Queries/activations.sql"))
+    print(db.run_sql_file(conn, base_path + "Queries/activations.sql")[:5])
     print("Customers who did not activate in 2 months:")
-    print(db.run_sql_file(conn, base_path + "Queries/inactive.sql"))
+    print(db.run_sql_file(conn, base_path + "Queries/inactive.sql")[:5])
     print("Conversion rate by customer:")
-    print(db.run_sql_file(conn, base_path + "Queries/conversion.sql"))
+    print(db.run_sql_file(conn, base_path + "Queries/conversion.sql")[:5])
     print("Customer redemption values:")
-    print(db.run_sql_file(conn, base_path + "Queries/redemptions.sql"))
+    print(db.run_sql_file(conn, base_path + "Queries/redemptions.sql")[:5])
 
 #run main
 if __name__ == '__main__':

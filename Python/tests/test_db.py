@@ -60,4 +60,4 @@ def test_query_file(db: IbottaDB, conn: Engine):
     rows = db.run_sql_file(conn, path)
     
     print(rows)
-    assert rows == expected
+    assert rows[:5] == expected

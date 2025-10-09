@@ -10,4 +10,4 @@ WHERE customer_id NOT IN (
 )
 GROUP BY customer_id
 ORDER BY last_activation DESC
-LIMIT 5;
+;

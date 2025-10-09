@@ -4,4 +4,4 @@
     FROM customer_offers
     GROUP BY customer_id
     ORDER BY activation_count DESC
-    LIMIT 5;
+    ;

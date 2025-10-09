@@ -6,12 +6,13 @@ from sqlalchemy import Engine
 @pytest.fixture(scope="session")
 def db():
     db = IbottaDB()
-    yield db
+    return db
 
 @pytest.fixture(scope="function")
 def conn(db: IbottaDB):
     conn = db.get_db(db.db_url)
     yield conn
+    conn.dispose()
 
 def test_mapping(db: IbottaDB):
     # Map given CSV file names to table names

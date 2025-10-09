@@ -2,6 +2,7 @@
         CUSTOMER_ID as customer_id,
         COUNT(*) AS activation_count
     FROM customer_offers
+    WHERE activated IS NOT NULL
     GROUP BY customer_id
     ORDER BY activation_count DESC
     ;

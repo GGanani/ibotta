@@ -6,7 +6,7 @@ WHERE customer_id NOT IN (
     SELECT customer_id
     FROM customer_offers
     -- Instead of 'now' use the last activation because data are a few years old 
-    WHERE ACTIVATED >= strftime('%s', '2021-03-25 00:00:00', '-2 months')
+    WHERE date(ACTIVATED) >= date('2021-03-25', '-2 months')
 )
 GROUP BY customer_id
 ORDER BY last_activation DESC

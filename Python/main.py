@@ -15,14 +15,10 @@ def main():
     conn = db.get_db(db_url)
     db.load_csv(conn, dir_path, db.map_csv(dir_path))
 
-    print("Customer offers rows:")
-    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM customer_offers;"))
-    print("Customer offer rewards rows:")
-    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM customer_offer_rewards;"))
-    print("Customer offer redemptions rows:")
-    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM customer_offer_redemptions;"))
-    print("Offer rewards rows:")
-    print(db.run_sql(conn, "SELECT COUNT(*) as ROWS FROM offer_rewards;"))
+
+    for table in db.map_csv(dir_path).values():
+        count = db.get_row_count(conn, table)
+        print(f"{table.replace('_', ' ')} rows: {count}")
 
     query = '''
     SELECT *

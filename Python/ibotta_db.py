@@ -177,3 +177,27 @@ class IbottaDB:
             return self.run_sql(conn, query)
         except FileNotFoundError as e:
             print(f"Error: {e}")
+
+    def get_row_count(self, conn: Engine, table: str) -> Integer:
+        """
+        Helper to get row count for a tables.
+
+        Args:
+            conn (Engine): SQLAlchemy DB engine
+            tables (str): A table name for which to count rows,
+                consisting only of letters, digits, and underscores.
+
+        Returns:
+            int of rows counted, or 0 if no result returned
+        
+        Raises:
+            ValueError: If the table name contains invalid characters (anything other
+                than letters, digits, or underscores). This guards against unsafe SQL
+                interpolation and potential SQL injection.
+        """
+        if not table.replace("_", "").isalnum():
+            raise ValueError(f"Invalid table name: {table}")
+
+        query = f"SELECT COUNT(*) AS ROWS FROM {table};"
+        result = self.run_sql(conn, query)
+        return result[0]["ROWS"] if result else 0

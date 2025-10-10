@@ -1,8 +1,6 @@
 import pytest
-import pandas as pd
 from ibotta_db import IbottaDB
 from sqlalchemy import Engine
-from datetime import datetime
 
 @pytest.fixture(scope="session")
 def db():
@@ -62,9 +60,9 @@ def test_conversion_query(db: IbottaDB, conn: Engine):
 
     # Define expected output
     expected = [
-        {"customer_id": 1, "total_activated": 2, "total_verified": 1, "conversion_rate": 0.5},
-        {"customer_id": 2, "total_activated": 2, "total_verified": 0, "conversion_rate": 0.0},
-        {"customer_id": 3, "total_activated": 1, "total_verified": 0, "conversion_rate": 0.0},
+        {"customer_id": 1, "total_offered": 2, "total_verified": 1, "conversion_rate": 0.5},
+        {"customer_id": 2, "total_offered": 2, "total_verified": 0, "conversion_rate": 0.0},
+        {"customer_id": 3, "total_offered": 1, "total_verified": 0, "conversion_rate": 0.0},
     ]
 
     # Compare to expected result
